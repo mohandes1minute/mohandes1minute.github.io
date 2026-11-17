@@ -101,6 +101,7 @@ button{font-family:inherit;cursor:pointer;border:0;color:inherit}
   <button class="pill" id="bTour">جولة في المدينة</button>
   <button class="pill" id="bGarden">🌴 حديقة الذكر</button>
   <button class="pill acc" id="bStad">⚽ الاستاد</button>
+  <button class="pill" id="bMosque">🕌 المسجد</button>
   <button class="pill" id="bNight">☾</button>
 </div>
 
@@ -126,7 +127,7 @@ const tw = n => Math.floor((n-1)/100);
 $('cnt').textContent = AR(FLOORS.length) + ' دور بأساميكم';
 
 /* ---------- economy state (state.json from points.py) ---------- */
-const ST = {"lvl": {}, "neon": [], "max": [], "boards": [], "shops": {}, "streets": {}, "roof": null, "classico": {"real": 1846, "barca": 820, "top": [["m.taha_2026", 248], ["fhd16754", 122], ["ali_na_313_", 99], ["k_7s._", 97], ["eliaalhussain", 83], ["hamz_a1.10", 66]], "open": true}, "palms": [[1, "فضحكت فبشرناها"]], "earned": {}, "bal": {}};
+const ST = {"lvl": {}, "neon": [], "max": [], "boards": [], "shops": {}, "streets": {}, "roof": null, "classico": {"real": 1846, "barca": 820, "top": [["m.taha_2026", 248], ["fhd16754", 122], ["ali_na_313_", 99], ["k_7s._", 97], ["eliaalhussain", 83], ["hamz_a1.10", 66]], "open": true}, "mosque": {"stones": 0, "goal": 100000}, "palms": [[1, "فضحكت فبشرناها"]], "earned": {}, "bal": {}};
 const lc = u => u.toLowerCase();
 const earnedOf = u => (ST.earned||{})[lc(u)] || 0, balOf = u => (ST.bal||{})[lc(u)] || 0;
 const S = { owned:{}, sold:{} };
@@ -346,6 +347,64 @@ function showGarden() {
     <div class="card"><b>النخيل اللي اتزرع (${AR(PALMS.length)}) · ${AR(GARDEN.oases.length)} واحة</b><ul class="lb">${PALMS.slice().reverse().slice(0,60).map(([n,u]) => `<li><span class="n">🌴${AR(n)}</span><span class="u">${esc(u)}</span></li>`).join('') || '<li>لسه محدش — كن أول نخلة!</li>'}</ul></div>`);
 }
 function flyGarden(i = 0) { const [x,z] = OASIS_POS[i]; flyTo(new THREE.Vector3(x, 6, z), new THREE.Vector3(x + 40, 55, z + (z > 0 ? 95 : -95))); }
+
+
+/* ---------- city mosque (built by dhikr comments: 1 comment = 1 stone, goal 100,000) ---------- */
+const MQ = ST.mosque || { stones: 0, goal: 100000 };
+const MOSQ = { pos: new THREE.Vector3(0, 0, 240), sc: 0.55 };
+(function buildMosque() {
+  const G = new THREE.Group(); G.position.copy(MOSQ.pos); G.scale.setScalar(MOSQ.sc); G.rotation.y = Math.PI; scene.add(G);
+  const SL = { stone: [], dome: [], gold: [] }, ORDER = []; const o3 = new THREE.Object3D(); const V = (x, y, z) => new THREE.Vector3(x, y, z);
+  function add(grp, pos, scl, rotY = 0, quat = null) { o3.position.copy(pos); o3.scale.copy(scl); if (quat) o3.quaternion.copy(quat); else o3.rotation.set(0, rotY, 0); o3.updateMatrix(); SL[grp].push(o3.matrix.clone()); ORDER.push(grp); }
+  { const t = []; for (let x = -72; x <= 72; x += 6) for (let z = -66; z <= 54; z += 6) t.push([x, z]); t.sort((a, b) => Math.hypot(a[0], a[1] + 6) - Math.hypot(b[0], b[1] + 6)); for (const [x, z] of t) add('stone', V(x, .4, z), V(5.9, .8, 5.9)); }
+  const HX = 40, HZ0 = -64, HZ1 = -16, HH = 22, BH = 1.3;
+  function wallLine(x0, z0, x1, z1, y, front) { const L = Math.hypot(x1 - x0, z1 - z0), n = Math.round(L / 2.6), ang = Math.atan2(z1 - z0, x1 - x0);
+    for (let i = 0; i < n; i++) { const u = (i + .5) / n, x = x0 + (x1 - x0) * u, z = z0 + (z1 - z0) * u, al = u * L;
+      if ((y > 6 && y < 15 && (al % 13) > 4.5 && (al % 13) < 8.5) || (front && y < 13 && Math.abs(x) < 7)) continue; add('stone', V(x, y, z), V(2.55, BH - .05, 1.8), -ang); } }
+  for (let y = .8 + BH / 2; y < HH; y += BH) { wallLine(-HX, HZ1, HX, HZ1, y, true); wallLine(HX, HZ1, HX, HZ0, y); wallLine(HX, HZ0, -HX, HZ0, y); wallLine(-HX, HZ0, -HX, HZ1, y); }
+  for (let x = -36; x <= 36; x += 8) for (let z = -60; z <= -20; z += 8) add('stone', V(x, HH + .4, z), V(8, .8, 8));
+  const COLS = []; for (let z = -12; z <= 48; z += 7.5) { COLS.push([-68, z]); COLS.push([68, z]); } for (let x = -60; x <= 60; x += 7.5) COLS.push([x, 50]);
+  for (const [x, z] of COLS) for (let y = 1.4; y < 11; y += 1.2) add('stone', V(x, y, z), V(1.7, 1.15, 1.7));
+  function arch(x0, z0, x1, z1) { const cx = (x0 + x1) / 2, cz = (z0 + z1) / 2, r = Math.hypot(x1 - x0, z1 - z0) / 2, ang = Math.atan2(z1 - z0, x1 - x0);
+    for (let k = 1; k < 8; k++) { const a = Math.PI * k / 8, d = -Math.cos(a) * r; add('stone', V(cx + Math.cos(ang) * d, 11 + Math.sin(a) * r * .8, cz + Math.sin(ang) * d), V(1.6, 1.1, 1.6), -ang); } }
+  for (let z = -12; z < 48; z += 7.5) { arch(-68, z, -68, z + 7.5); arch(68, z, 68, z + 7.5); } for (let x = -60; x < 60; x += 7.5) arch(x, 50, x + 7.5, 50);
+  for (let z = -12; z <= 48; z += 4) { add('stone', V(-68, 15.2, z), V(4, .8, 6)); add('stone', V(68, 15.2, z), V(4, .8, 6)); } for (let x = -68; x <= 68; x += 4) add('stone', V(x, 15.2, 50), V(4, .8, 6));
+  const DC = V(0, HH + .8, -40), DR = 17;
+  for (let y = 0; y < 6; y += 1.2) { const n = Math.round(2 * Math.PI * DR / 2.4); for (let i = 0; i < n; i++) { const a = i / n * 6.283; add('stone', V(DC.x + Math.cos(a) * DR, DC.y + y + .6, DC.z + Math.sin(a) * DR), V(2.45, 1.15, 1.6), -a + Math.PI / 2); } }
+  function dome(c, r, grp, tile = 1.7) { const rings = Math.round((Math.PI / 2) * r / tile);
+    for (let j = 0; j < rings; j++) { const ph = (j + .5) / rings * Math.PI / 2, rr = r * Math.cos(ph), y = r * Math.sin(ph) * 1.12, n = Math.max(3, Math.round(2 * Math.PI * rr / tile));
+      for (let i = 0; i < n; i++) { const a = i / n * 6.283, nrm = V(Math.cos(a) * Math.cos(ph), Math.sin(ph), Math.sin(a) * Math.cos(ph)).normalize(); add(grp, V(c.x + Math.cos(a) * rr, c.y + y, c.z + Math.sin(a) * rr), V(tile * 1.05, .7, tile * 1.05), 0, new THREE.Quaternion().setFromUnitVectors(V(0, 1, 0), nrm)); } } }
+  dome(V(DC.x, DC.y + 6, DC.z), DR, 'dome');
+  for (const [x, z] of [[-30, -24], [30, -24], [-30, -56], [30, -56]]) { for (let y = 0; y < 3; y += 1.2) for (let i = 0; i < 14; i++) { const a = i / 14 * 6.283; add('stone', V(x + Math.cos(a) * 6, HH + 1.4 + y, z + Math.sin(a) * 6), V(2.6, 1.15, 1.2), -a + Math.PI / 2); } dome(V(x, HH + 4.2, z), 6, 'dome', 1.5); }
+  for (let y = 1.4; y < 30; y += 1.3) for (const x of [-10, -7.5, 7.5, 10]) add('stone', V(x, y, HZ1 + 1.5), V(2.4, 1.25, 3)); for (let x = -10; x <= 10; x += 2.5) add('stone', V(x, 30.5, HZ1 + 1.5), V(2.5, 1.25, 3));
+  const MIN = [[-72, -68], [72, -68], [-72, 54], [72, 54]];
+  for (const [mx, mz] of MIN) { for (let y = 1.4; y < 78; y += 1.25) { const r = y < 50 ? 3.4 : 2.7; for (let i = 0; i < 10; i++) { const a = i / 10 * 6.283 + (Math.round(y / 1.25) % 2) * .31; add('stone', V(mx + Math.cos(a) * r, y, mz + Math.sin(a) * r), V(2.25, 1.2, 1.1), -a + Math.PI / 2); }
+      if (Math.abs(y - 48.9) < .6 || Math.abs(y - 68.9) < .6) for (let i = 0; i < 16; i++) { const a = i / 16 * 6.283; add('stone', V(mx + Math.cos(a) * 5, y + .8, mz + Math.sin(a) * 5), V(2.2, .6, 2.2), -a); } }
+    dome(V(mx, 78, mz), 2.8, 'gold', 1.0); }
+  for (const [x, y, z, s] of [[DC.x, DC.y + 6 + DR * 1.12 + 2, DC.z, 2.2], ...MIN.map(([x, z]) => [x, 82.5, z, 1.1])]) add('gold', V(x, y, z), V(s, s * 2.4, s));
+  const NS = ORDER.length, k = Math.min(NS, Math.floor(NS * Math.min(1, MQ.stones / MQ.goal)));
+  const cnt = { stone: 0, dome: 0, gold: 0 }; for (let j = 0; j < k; j++) cnt[ORDER[j]]++;
+  const MATS = { stone: new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: .85 }), dome: new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: .35, metalness: .25 }), gold: new THREE.MeshStandardMaterial({ color: 0xffc23a, roughness: .3, metalness: .8, emissive: 0x553300 }) };
+  const ghost = new THREE.MeshBasicMaterial({ color: 0x46d8ff, transparent: true, opacity: .07, depthWrite: false });
+  const geo = new THREE.BoxGeometry(1, 1, 1), col = new THREE.Color(); let sd = 3; const rr = () => (sd = (sd * 16807) % 2147483647) / 2147483647;
+  for (const g of ['stone', 'dome', 'gold']) {
+    const m = new THREE.InstancedMesh(geo, MATS[g], SL[g].length); SL[g].forEach((mx, i) => { m.setMatrixAt(i, mx); if (g === 'stone') col.setHSL(.085 + rr() * .025, .42 + rr() * .12, .58 + rr() * .12); else if (g === 'dome') col.setHSL(.47 + rr() * .03, .55, .42 + rr() * .1); else col.set(0xffd25a); m.setColorAt(i, col); });
+    m.count = cnt[g]; G.add(m);
+    const gm = new THREE.InstancedMesh(geo, ghost, SL[g].length); SL[g].forEach((mx, i) => gm.setMatrixAt(i, mx)); G.add(gm);
+  }
+  if (k === 0) { const f = new THREE.Mesh(new THREE.BoxGeometry(5.9, .8, 5.9), new THREE.MeshStandardMaterial({ color: 0xffe2a8, emissive: 0xffb040, emissiveIntensity: 1.2 })); f.position.set(0, .4, -6); G.add(f); }
+  const c = document.createElement('canvas'); c.width = 768; c.height = 256; const g = c.getContext('2d');
+  g.fillStyle = 'rgba(10,40,30,.92)'; g.beginPath(); g.roundRect(6, 6, 756, 244, 40); g.fill(); g.strokeStyle = '#7fe0b0'; g.lineWidth = 8; g.stroke();
+  g.fillStyle = '#ffd27a'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.font = '900 66px Cairo, Arial, sans-serif'; g.fillText('🕌 مسجد المدينة', 384, 88);
+  g.fillStyle = '#fff'; g.font = '700 42px Cairo, Arial, sans-serif'; g.fillText(`${AR(MQ.stones)} حجر من ${AR(MQ.goal)} · ${AR(Math.floor(MQ.stones * 100 / MQ.goal))}٪`, 384, 180);
+  const sign = new THREE.Sprite(new THREE.SpriteMaterial({ map: new THREE.CanvasTexture(c), depthTest: false })); sign.scale.set(60, 20, 1); sign.position.set(MOSQ.pos.x, 58, MOSQ.pos.z); scene.add(sign);
+})();
+function flyMosque() { const p = MOSQ.pos; flyTo(new THREE.Vector3(p.x, 22, p.z), new THREE.Vector3(p.x + 85, 85, p.z - 160)); }
+function showMosque() {
+  openSheet('🕌 مسجد المدينة', `
+    <div class="card" style="text-align:center"><div class="meta">اللي اتبنى لحد دلوقتي</div><div style="font-size:40px;font-weight:900;color:var(--acc)">${AR(MQ.stones)} / ${AR(MQ.goal)}</div><div class="note">حجر · بيتحدّث كل ٣ ساعات</div></div>
+    <div class="free">🧱 <b>إزاي تحط حجر؟</b><br>اكتب <b>استغفار أو دعاء أو تسبيح أو صلاة على النبي ﷺ</b> في كومنت تحت فيديوهات المسجد — كل كومنت = حجر.<br>المسجد رقمي داخل مدينة الصفحة.</div>`);
+}
 
 /* ---------- billboards: 3 for followers (points), 2 for sponsors (paid, by direct contact) ---------- */
 const BOARDS = [];
@@ -753,6 +812,7 @@ Promise.all([document.fonts.load('900 30px Cairo, Arial, sans-serif','٠١٢ab')
   rebuild(); tickNight(); loop();
   $('bGarden').onclick = () => { touring = false; flyGarden(); showGarden(); };
   $('bStad').onclick = () => { touring = false; flyStadium(); showStadium(); };
+  $('bMosque').onclick = () => { touring = false; flyMosque(); showMosque(); };
   $('load').style.opacity = 0; setTimeout(() => $('load').remove(), 500);
   const m = location.hash.match(/^#floor-(\d+)$/);
   if (m && MAP.has(+m[1])) { shopFloor = +m[1]; setTimeout(() => focusFloor(+m[1]), 400); }
