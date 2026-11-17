@@ -481,7 +481,7 @@ function showFloor(n) {
     <div class="card"><div class="fl"><div class="av" style="background:${colorOf(u)}">${esc(letterOf(u))}</div>
       <div><div class="un">${profUrl(n) ? `<a href="${profUrl(n)}" target="_blank" rel="noopener" style="color:inherit;text-decoration:underline">@${esc(u)}</a>` : `@${esc(u)}`}</div><div class="meta">البرج ${AR(tw(n)+1)} · دور ${AR(n)}</div>
       <span class="badge g">لفل ${AR(lvl)}</span><span class="badge">💰 رصيدك ${AR(o.b||0)} نقطة</span>${o.neon ? '<span class="badge">💡 نيون</span>' : ''}${o.max ? '<span class="badge">👑 ماكس</span>' : ''}${S.boards.includes(lc(u)) ? '<span class="badge">📢 لوحة إعلانية</span>' : ''}</div></div>
-      <div class="row">${profUrl(n) ? `<a class="btn" href="${profUrl(n)}" target="_blank" rel="noopener" style="text-decoration:none;text-align:center">👤 البروفايل</a>` : ''}<button class="btn" id="shareB">🔗 شارك دورك</button><button class="btn p" id="decoB">🛍️ اصرف نقطك</button></div></div>
+      <div class="row">${profUrl(n) ? `<a class="btn" href="${profUrl(n)}" target="_blank" rel="noopener" style="text-decoration:none;text-align:center;color:inherit">👤 البروفايل</a>` : ''}<button class="btn" id="shareB">🔗 شارك دورك</button><button class="btn p" id="decoB">🛍️ اصرف نقطك</button></div></div>
     <div class="note">جمعت ${AR(o.c||0)} نقطة لحد دلوقتي · الرصيد بيتصرف بكومنت «اصرف …» تحت أي فيديو</div>
     <div class="free">🎁 <b>إزاي تجمع نقط؟</b><br>💬 كومنت على فيديو جديد = نقطة<br>👥 منشن لصاحب في الكومنت = نقطة (لحد ٣ في الفيديو)<br>🤝 صاحبك يعمل فولو ويكتب «جاي من @اسمك» = ٥ نقط<br>🌴 «أستغفر الله» في كومنت = نخلة باسمك في الواحة</div>
     <div class="note">ده لينك دورك اللي تقدر تشاركه: <span style="direction:ltr;display:inline-block">#floor-${n}</span></div>`);
