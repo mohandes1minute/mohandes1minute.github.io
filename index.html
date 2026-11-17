@@ -100,6 +100,7 @@ button{font-family:inherit;cursor:pointer;border:0;color:inherit}
   <button class="pill acc" id="bHow">إزاي آخد دور؟</button>
   <button class="pill" id="bTour">جولة في المدينة</button>
   <button class="pill" id="bGarden">🌴 حديقة الذكر</button>
+  <button class="pill acc" id="bStad">⚽ الاستاد</button>
   <button class="pill" id="bNight">☾</button>
 </div>
 
@@ -112,7 +113,7 @@ button{font-family:inherit;cursor:pointer;border:0;color:inherit}
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
-const FLOORS = [[1,"_asawer.1_"],[2,"anwwar_212"],[3,"alioy__qqq"],[4,"talaal_mohamad"],[5,"zx_7jk"],[6,"o2v.p"],[7,"m_llll_2009"],[8,"ahmad_khattab_1998"],[9,"mhmdkhyr8722"],[10,"yo_if3"],[11,"ahmad_a_m_h"],[12,"6.1wc"],[13,"7mmozz"],[14,"b_ali_24"],[15,"4t_c.7"],[16,"6w.qwe"],[17,"duve._.yahya"],[18,"vhp.29"],[19,"mido_xo.1"],[20,"xil.6re"],[21,"y3z2026"],[22,"h_u_s_s_i_n_778"],[23,"abdulrezak17__"],[24,"its_saef3"],[25,"alhanbalideyaa"],[26,"hv.ks10"],[27,"shawm3ng"],[28,"hwaida_sabah"],[29,"khoderyehyaa"],[30,"hz_21c"],[31,"adma65096"],[32,"mohammedkhaled6277"],[33,"bessm_aboubou"],[34,"shedy_1919_baaziz"],[35,"prrrv_mahdi"],[36,"Kaled"],[37,"mhmd170859"],[38,"adimm_omer"],[39,"viper._.0.2"],[40,"amir.kordab"],[41,"hamzw_e2"],[42,"p_rz_"],[43,"braa.hbejan"],[44,"ali_.76p"],[45,"som3a_alsidawi67"],[46,"1ha_ke"],[47,"majd201243"],[48,"ahumaids767"],[49,"samsalsoleman"],[50,"adam.gh200"],[51,"taim_5102"],[52,"زين"],[53,"mcjat_"],[54,"elie.g.taweel"],[55,"_a60u"],[56,"hisham_jubeh"],[57,"fyad_assaf"],[58,"alialsalamat123"],[59,"si9l2026"],[60,"potg___________________"],[61,"iwxx9i"],[62,"be_chihiro21"],[63,"t2___2g"],[64,"shhm.9000"],[65,"hsyn265183"],[66,"apad.alrhman"],[67,"naifesuleyman"],[68,"x.xdxx5995"],[69,"282o0"],[70,"ala__kolsi"],[71,"p.ucs"],[72,"h_wj.7"],[73,"muhvb_0"],[74,"lh20_600"],[75,"d7e_25"],[76,"__mohammad__awad__"],[77,"freihat505a"],[78,"akq_32"],[79,"alwrt.anybdallh970"],[80,"as.aaash"],[81,"its_adeem_02"],[82,"prvt._.ridafolo._.17"],[83,"amaarkh63"],[84,"loay_tanjawi1"],[85,"karamsalah870"],[86,"m8_eng"],[87,"Badr"],[88,"yousef_d3na"],[89,"sara__hdb_"],[90,"_yuus2f_"],[91,"حسين الكاظمي"],[92,"abdalrhmankateb078"],[93,"abdo_2012__ab"],[94,"zoro21178"],[95,"mohamad25156892"],[96,"haythem_mtirawi"],[97,"issaadisidali_19"],[98,"k201414"],[99,"momoejsi"],[100,"aamar_mr_87"],[101,"eee_yyyyyyye"],[102,"2011____________mo"],[103,"yoritshifc"],[104,"cnk_50"],[105,"tbmojib"],[106,"isma__il154"],[107,"ali_31hamza"],[108,"ahmed_qutb12"],[109,"zed6.35"],[110,"محمد"],[111,"yamen._.alwani"],[112,"mehrez8741"],[113,"adel.mawassi13"],[114,"o.7use"],[115,"20m_oha_m_d13"],[116,"amynt1743"],[117,"au505ji"],[118,"z59si"],[119,"mohamed_alnbary_"],[120,"alhor.syr"],[121,"boda_elebnani"],[122,"rk.awy_13"],[123,"yes__no9"],[124,"hmode0189"],[125,"طلال"],[126,"dhby8226"],[127,"aidikohu"],[128,"yio_of17"],[129,"kangaroo.6888974"],[130,"king_brh00m"],[131,"abdelhakimbd99"],[132,"6ys513"],[133,"lamis.7370336"],[134,"animation201010"],[135,"abode_g_2009"],[136,"rayan_333_rayan"],[137,"tema__essawi"],[138,"lsfh7309"],[139,"g5ew1"],[140,"zedan_fhmi"],[141,"sk____hafsa"],[142,"zaid.yahyaouii"],[143,"adnan_kilesero"],[144,"a.k.lm1"],[145,"x__zak__x"],[146,"x.ahmad911"],[147,"z15_m50"],[148,"rayan_aml555"],[149,"_x_5052"],[150,"amare.saoula"],[151,"a26r412"],[152,"foad0986"],[153,"كريم"],[154,"youcef_ad_25"],[155,"tr.noor_alnabhan"],[156,"fahadml1"],[157,"afify886"],[158,"a8_2011a"],[159,"obadahax1"],[160,"ziy2_2ech"],[161,"Baraa"],[162,"coolboy4700109"],[163,"kadibochakoridriss"],[164,"kf77_d7"],[165,"hamzasabdelohsen"],[166,"2myp7"],[167,"otmane85780"],[168,"_8p94"],[169,"rx_.2013"],[170,"koss_ai41"],[171,"mohib_mbarik"],[172,"alnd.shekhy"],[173,"ymnmrldlyl"],[174,"544i_an"],[175,"abood._.645"],[176,"x_algerie___16_x"],[177,"8eco73"],[178,"غيث"],[179,"raftalkrdy738"],[180,"mouaedh_zz"],[181,"mahmoud2.0.1.6"],[182,"karim294309"],[183,"bdllh865189"],[184,"Fares"],[185,"issa_1_aych"],[186,"a7medgad2011"],[187,"mostafamoataz7"],[188,"ahmed.ayman2011"],[189,"Mohamed"],[190,"exvddz"],[191,"s.ad771"],[192,"alaa_jalil76"],[193,"wa3d49763"],[194,"x.youssef.x10"],[195,"jawabreh.abdallah"],[196,"yis32516"],[197,"t.g.x4"],[198,"omar515766"],[199,"3x__h3_"],[200,"karam_almsre"],[201,"hay__tam.b"],[202,"lith6166"],[203,"samoura_345"],[204,"فادي"],[205,"24_nfa"],[206,"mahmodtayob"],[207,"________aa_______1"],[208,"prv_123000"],[209,"slm.lhwyn"],[210,"عمر محمد الحاج"],[211,"m7md_n1dr_ff"],[212,"55.77.88.999"],[213,"وليد عمر"],[214,"mohmmad61656"],[215,"yassirmo777"],[216,"hashe3214"],[217,"b_5cvx"],[218,"garbissarkis"],[219,"tajjjjj_67"],[220,"su_lt493"],[221,"جعفر"],[222,"ayat_kh_asaad"],[223,"mmaa___321"],[224,"nezarbasem313"],[225,"7mo_3ftah"],[226,"zainaldin_07"],[227,"نادر"],[228,"cr7uywjawj22j3"],[229,"jduw_100"],[230,"selem11831"],[231,"ahmad_alwaked2012"],[232,"mafiya.kl"],[233,"Jad"],[234,"h_sn7h"],[235,"hamzawadd"],[236,"qsy.al5"],[237,"esc18__"],[238,"youssefessam_s"],[239,"abo_3omar_9"],[240,"vv7o7ihgd"],[241,"malek416743"],[242,"hmodamhmad876"],[243,"adel1339_67"],[244,"aliabd2416"],[245,"mkhtrhsn_h"],[246,"m.e.m.e.t.515"],[247,"fares_h_10_m"],[248,"king__lionel__messi"],[249,"_omar_artg"],[250,"kader___her"],[251,"berzily99"],[252,"a__zz_a.m"],[253,"youssef1276775"],[254,"mahammd_king_suosa"],[255,"zahi58742"],[256,"tamersaid745"],[257,"eyadahmedfayez"],[258,"egbarihmhamad"],[259,"most_afahallak"],[260,"mu3taz_3qel"],[261,"am1.0tr"],[262,"x_n_idal_e_x"],[263,"lt_lt108"],[264,"abrahym72504"],[265,"bdw37424"],[266,"mohamad.khlioi"],[267,"llsaleh_29ll"],[268,"ah__med__1005"],[269,"ziadakmik"],[270,"omar21_9"],[271,"ag.mx7"],[272,"yaseen_maswadeh"],[273,"the_crazy_basbous"],[274,"ish.ak3354"],[275,"76_z_en"],[276,"آدم"],[277,"majd_w_youssef"],[278,"abdulkadyr723"],[279,"adam.ben.abid.2025"],[280,"only.raed.cbi"],[281,"Rayan"],[282,"fraun_j___r"],[283,"v.qb7"],[284,"saln_kh"],[285,"myklkhtm"],[286,"عبد الرحمن"],[287,"flawy.com1"],[288,"lana_fahham"],[289,"spider_shop.9"],[290,"v84ak"],[291,"karamabujalal"],[292,"chtioui_adam"],[293,"_5zero7"],[294,"abdullah2980881"],[295,"3slia00"],[296,"_sou_fyane__"],[297,"aym7988"],[298,"ahmedbasim543ab"],[299,"youssef_invictus"],[300,"mahmod29999"],[301,"anismekid12"],[302,"moha29528"],[303,"rayan149853"],[304,"zead_1928"],[305,"مارينيت"],[306,"ab0v_"],[307,"hassen.malakmohamed"],[308,"ze_a.b7"],[309,"abdallah_m7amed09"],[310,"platypus.77764457"],[311,"تركي"],[312,"hawamdej"],[313,"mtsm82634"],[314,"aw_ez1"],[315,"m8796107"],[316,"4olk98"],[317,"shaheralkatyb6"],[318,"a_ali12007"],[319,"abdalla55546"],[320,"9atil_77"],[321,"il4.rty"],[322,"5x5un"],[323,"lrwshd736"],[324,"koala.98657118"],[325,"_wqox6"],[326,"mouzmhene"],[327,"alab.addi305"],[328,"a1v4_w_"],[329,"fel085216455"],[330,"ابراهيم"],[331,"abd_____2009ah"],[332,"khali_alnaama"],[333,"audzy_2916"],[334,"kareemalsaafin"],[335,"ghai.th1541"],[336,"amarallame81"],[337,"4ad_r44"],[338,"3li_legnt"],[339,"__mina_ibram__"],[340,"mohammednaeem4698"],[341,"kise_morshed"],[342,"alaiham509"],[343,"محمد"],[344,"آسر"],[345,"M45"],[346,"aybk_sabaheen"],[347,"داوود"],[348,"adam_999te"],[349,"fhd16754"],[350,"masaward123"],[351,"aboody33861"],[352,"k009q"],[353,"ayoub_3bdo"],[354,"محمد مازن"],[355,"7rtz6"],[356,"kalshw97"],[357,"softiee.x__26"],[358,"1kq_z"],[359,"mahmoud46ahmed"],[360,"antl_10"],[361,"abdallah459193d"],[362,"2x3rm"],[363,"salah_sayed_1"],[364,"mdny2685"],[365,"_mk12_khalil_mohamed_"],[366,"hwanghyunjin112"],[367,"sbahiwaleed"],[368,"baraa.al_khaled"],[369,"mhmd6946398"],[370,"yassin_najmawi"],[371,"al_kralh"],[372,"mohamed_lbrahim095"],[373,"kingallith"],[374,"hasanathamooda10"],[375,"ec_0_r_0"],[376,"__1a.hr"],[377,"doufanimauhamed"],[378,"7c.v8k"],[379,"abdou._.mohand.off"],[380,"itsruqaya5"],[381,"aly_azim1"],[382,"y1h.shr"],[383,"laith.matar_"],[384,"H98.kr"],[385,"thek.ing12343"],[386,"osaidmhmdnoor"],[387,"shawabkeh2222"],[388,"rashedjamani"],[389,"saad_sabouni"],[390,"ahmmdhade"],[391,"mhmad_khaled89"],[392,"hsntelm0"],[393,"_if0h"],[394,"yassinhetham43"],[395,"____silenthunter____"],[396,"taha_____gk"],[397,"3bdalha6"],[398,"ayhabtlfah"],[399,"morad_moste1"],[400,"k5pr26"],[401,"body_7amza"],[402,"carolisitita"],[403,"dhiabnhadda"]];
+const FLOORS = [[1,"_asawer.1_"],[2,"anwwar_212"],[3,"alioy__qqq"],[4,"talaal_mohamad"],[5,"zx_7jk"],[6,"o2v.p"],[7,"zead_1928"],[8,"ahmad_khattab_1998"],[9,"mhmdkhyr8722"],[10,"yo_if3"],[11,"ahmad_a_m_h"],[12,"6.1wc"],[13,"7mmozz"],[14,"b_ali_24"],[15,"4t_c.7"],[16,"6w.qwe"],[17,"duve._.yahya"],[18,"vhp.29"],[19,"mido_xo.1"],[20,"xil.6re"],[21,"y3z2026"],[22,"h_u_s_s_i_n_778"],[23,"abdulrezak17__"],[24,"its_saef3"],[25,"alhanbalideyaa"],[26,"hv.ks10"],[27,"shawm3ng"],[28,"hwaida_sabah"],[29,"khoderyehyaa"],[30,"hz_21c"],[31,"adma65096"],[32,"mohammedkhaled6277"],[33,"bessm_aboubou"],[34,"shedy_1919_baaziz"],[35,"prrrv_mahdi"],[36,"Kaled"],[37,"mhmd170859"],[38,"adimm_omer"],[39,"viper._.0.2"],[40,"amir.kordab"],[41,"hamzw_e2"],[42,"p_rz_"],[43,"braa.hbejan"],[44,"ali_.76p"],[45,"som3a_alsidawi67"],[46,"1ha_ke"],[47,"majd201243"],[48,"ahumaids767"],[49,"samsalsoleman"],[50,"adam.gh200"],[51,"taim_5102"],[53,"mcjat_"],[54,"elie.g.taweel"],[55,"_a60u"],[56,"hisham_jubeh"],[57,"fyad_assaf"],[58,"alialsalamat123"],[59,"si9l2026"],[60,"potg___________________"],[61,"iwxx9i"],[62,"be_chihiro21"],[63,"t2___2g"],[64,"shhm.9000"],[65,"hsyn265183"],[66,"apad.alrhman"],[67,"naifesuleyman"],[68,"x.xdxx5995"],[69,"282o0"],[70,"ala__kolsi"],[71,"p.ucs"],[72,"h_wj.7"],[73,"muhvb_0"],[74,"lh20_600"],[75,"d7e_25"],[76,"__mohammad__awad__"],[77,"freihat505a"],[78,"akq_32"],[79,"alwrt.anybdallh970"],[80,"as.aaash"],[81,"its_adeem_02"],[82,"prvt._.ridafolo._.17"],[83,"amaarkh63"],[84,"loay_tanjawi1"],[85,"karamsalah870"],[86,"m8_eng"],[87,"Badr"],[88,"yousef_d3na"],[89,"sara__hdb_"],[90,"_yuus2f_"],[91,"حسين الكاظمي"],[92,"abdalrhmankateb078"],[93,"abdo_2012__ab"],[94,"zoro21178"],[95,"mohamad25156892"],[96,"haythem_mtirawi"],[97,"issaadisidali_19"],[98,"k201414"],[99,"momoejsi"],[100,"aamar_mr_87"],[101,"eee_yyyyyyye"],[102,"2011____________mo"],[103,"yoritshifc"],[104,"cnk_50"],[105,"tbmojib"],[106,"isma__il154"],[107,"ali_31hamza"],[108,"ahmed_qutb12"],[109,"zed6.35"],[110,"محمد"],[111,"yamen._.alwani"],[112,"mehrez8741"],[113,"adel.mawassi13"],[114,"o.7use"],[115,"20m_oha_m_d13"],[116,"amynt1743"],[117,"au505ji"],[118,"z59si"],[119,"mohamed_alnbary_"],[120,"alhor.syr"],[121,"boda_elebnani"],[122,"rk.awy_13"],[123,"yes__no9"],[124,"hmode0189"],[125,"طلال"],[126,"dhby8226"],[127,"aidikohu"],[128,"yio_of17"],[129,"kangaroo.6888974"],[130,"king_brh00m"],[131,"abdelhakimbd99"],[132,"6ys513"],[133,"lamis.7370336"],[134,"animation201010"],[135,"abode_g_2009"],[136,"rayan_333_rayan"],[137,"tema__essawi"],[138,"lsfh7309"],[139,"g5ew1"],[140,"zedan_fhmi"],[141,"sk____hafsa"],[142,"zaid.yahyaouii"],[143,"adnan_kilesero"],[144,"a.k.lm1"],[145,"x__zak__x"],[146,"x.ahmad911"],[147,"z15_m50"],[148,"rayan_aml555"],[149,"_x_5052"],[150,"amare.saoula"],[151,"a26r412"],[152,"foad0986"],[153,"كريم"],[154,"youcef_ad_25"],[155,"tr.noor_alnabhan"],[156,"fahadml1"],[157,"afify886"],[158,"a8_2011a"],[159,"obadahax1"],[160,"ziy2_2ech"],[161,"Baraa"],[162,"coolboy4700109"],[163,"kadibochakoridriss"],[164,"kf77_d7"],[165,"hamzasabdelohsen"],[166,"2myp7"],[167,"otmane85780"],[168,"sofia_11.2027"],[169,"rx_.2013"],[170,"koss_ai41"],[171,"mohib_mbarik"],[172,"alnd.shekhy"],[173,"ymnmrldlyl"],[174,"544i_an"],[175,"abood._.645"],[176,"x_algerie___16_x"],[177,"8eco73"],[178,"غيث"],[179,"raftalkrdy738"],[180,"mouaedh_zz"],[181,"mahmoud2.0.1.6"],[182,"karim294309"],[183,"bdllh865189"],[184,"Fares"],[185,"issa_1_aych"],[186,"a7medgad2011"],[187,"mostafamoataz7"],[188,"ahmed.ayman2011"],[189,"Mohamed"],[190,"exvddz"],[191,"s.ad771"],[192,"alaa_jalil76"],[193,"wa3d49763"],[194,"x.youssef.x10"],[195,"jawabreh.abdallah"],[196,"yis32516"],[197,"t.g.x4"],[198,"omar515766"],[199,"3x__h3_"],[200,"karam_almsre"],[201,"hay__tam.b"],[202,"lith6166"],[203,"samoura_345"],[204,"فادي"],[205,"24_nfa"],[206,"mahmodtayob"],[207,"________aa_______1"],[208,"prv_123000"],[209,"slm.lhwyn"],[210,"عمر محمد الحاج"],[211,"m7md_n1dr_ff"],[212,"55.77.88.999"],[213,"وليد عمر"],[214,"mohmmad61656"],[215,"yassirmo777"],[216,"hashe3214"],[217,"b_5cvx"],[218,"garbissarkis"],[219,"tajjjjj_67"],[220,"su_lt493"],[221,"جعفر"],[222,"ayat_kh_asaad"],[223,"mmaa___321"],[224,"nezarbasem313"],[225,"m_llll_2009"],[226,"zainaldin_07"],[227,"نادر"],[228,"cr7uywjawj22j3"],[229,"jduw_100"],[230,"selem11831"],[231,"ahmad_alwaked2012"],[232,"mafiya.kl"],[233,"Jad"],[261,"am1.0tr"],[270,"omar21_9"],[301,"anismekid12"],[311,"تركي"],[345,"M45"],[450,"e_7ae_"],[1000,"mny_seniors"]];
 const MAP = new Map(FLOORS.map(([n,u]) => [n,u]));
 const BYU = new Map(FLOORS.map(([n,u]) => [u.toLowerCase(),n]));
 const AR = n => String(n).replace(/\d/g, d => '٠١٢٣٤٥٦٧٨٩'[d]);
@@ -125,7 +126,7 @@ const tw = n => Math.floor((n-1)/100);
 $('cnt').textContent = AR(FLOORS.length) + ' دور بأساميكم';
 
 /* ---------- economy state (state.json from points.py) ---------- */
-const ST = {"lvl": {}, "neon": [], "max": [], "boards": [], "shops": {}, "streets": {}, "roof": null, "palms": [[1, "فضحكت فبشرناها"]], "earned": {}, "bal": {}};
+const ST = {"lvl": {}, "neon": [], "max": [], "boards": [], "shops": {}, "streets": {}, "roof": null, "classico": {"real": 0, "barca": 0, "top": [], "open": true}, "palms": [[1, "فضحكت فبشرناها"]], "earned": {}, "bal": {}};
 const lc = u => u.toLowerCase();
 const earnedOf = u => (ST.earned||{})[lc(u)] || 0, balOf = u => (ST.bal||{})[lc(u)] || 0;
 const S = { owned:{}, sold:{} };
@@ -410,6 +411,78 @@ function showBoard(b) {
   const sign = new THREE.Sprite(new THREE.SpriteMaterial({ map: new THREE.CanvasTexture(c), depthTest: false })); sign.scale.set(60, 20, 1); sign.position.set(0, 30, 0); G.add(sign);
 })();
 
+/* ---------- city stadium + live scoreboard (classico) ---------- */
+const CL = ST.classico || { real: 0, barca: 0, top: [], open: true };
+const STAD = { pos: new THREE.Vector3(330, 0, -150), hit: [] };
+(function buildStadium() {
+  const G = new THREE.Group(); G.position.copy(STAD.pos); scene.add(G);
+  const PL = 63, PW = 41;
+  const pc = document.createElement('canvas'); pc.width = 1024; pc.height = 666; const g = pc.getContext('2d');
+  for (let i = 0; i < 12; i++) { g.fillStyle = i % 2 ? '#2f8f3a' : '#2a8235'; g.fillRect(i * 1024/12, 0, 1024/12 + 1, 666); }
+  g.strokeStyle = '#fff'; g.lineWidth = 6; g.strokeRect(14, 14, 996, 638); g.beginPath(); g.moveTo(512, 14); g.lineTo(512, 652); g.stroke();
+  g.beginPath(); g.arc(512, 333, 80, 0, 7); g.stroke(); g.strokeRect(14, 173, 150, 320); g.strokeRect(860, 173, 150, 320);
+  const pt = new THREE.CanvasTexture(pc); pt.colorSpace = THREE.SRGBColorSpace;
+  const pitch = new THREE.Mesh(new THREE.PlaneGeometry(PL, PW), new THREE.MeshStandardMaterial({ map: pt, roughness: .9 }));
+  pitch.rotation.x = -Math.PI/2; pitch.position.y = .1; G.add(pitch);
+  const RX = 50, RZ = 37, conc = new THREE.MeshStandardMaterial({ color: 0x2a2f45, roughness: .9 });
+  for (let k = 0; k < 10; k++) {
+    const r = RX + k * 1.8, ring = new THREE.Mesh(new THREE.CylinderGeometry(r, r, 1, 64, 1, true), conc);
+    ring.scale.z = (RZ + k * 1.8) / r; ring.position.y = 1 + k; G.add(ring);
+  }
+  const N = 2600, fan = new THREE.InstancedMesh(new THREE.BoxGeometry(.8, 1.1, .8), new THREE.MeshStandardMaterial({ roughness: .8 }), N);
+  const o = new THREE.Object3D(), col = new THREE.Color(); let n = 0;
+  for (let k = 0; k < 10 && n < N; k++) {
+    const rx = RX + k * 1.8 - .9, rz = RZ + k * 1.8 - .9, per = Math.floor(2 * Math.PI * Math.sqrt((rx*rx + rz*rz) / 2) / 1.3);
+    for (let i = 0; i < per && n < N; i++) {
+      const a = i / per * Math.PI * 2, x = Math.cos(a) * rx, z = Math.sin(a) * rz;
+      o.position.set(x, 2 + k, z); o.rotation.y = -a; o.updateMatrix(); fan.setMatrixAt(n, o.matrix);
+      const h = (Math.sin(i * 12.9898 + k * 78.233) * 43758.5453) % 1;
+      col.set(x > 0 ? (Math.abs(h) < .75 ? 0xf4f4f4 : 0xd9b13b) : (Math.abs(h) < .45 ? 0x1e3fae : Math.abs(h) < .8 ? 0xa3123a : 0xf2c230)); fan.setColorAt(n, col); n++;
+    }
+  }
+  fan.count = n; G.add(fan);
+  const roof = new THREE.Mesh(new THREE.CylinderGeometry(RX + 22, RX + 22, 1.6, 64, 1, true), new THREE.MeshStandardMaterial({ color: 0xc9d2e8, side: THREE.DoubleSide, metalness: .4 }));
+  roof.scale.z = (RZ + 22) / (RX + 22); roof.position.y = 13; G.add(roof);
+  for (const [x, z] of [[-1, -1], [1, -1], [-1, 1], [1, 1]]) {
+    const m = new THREE.Mesh(new THREE.CylinderGeometry(.5, .7, 28, 8), new THREE.MeshStandardMaterial({ color: 0x8890a8 })); m.position.set(x * 62, 14, z * 48); G.add(m);
+    const p = new THREE.Mesh(new THREE.BoxGeometry(7, 4, .8), new THREE.MeshBasicMaterial({ color: 0xfff6d8 })); p.position.set(x * 62, 29, z * 48); p.lookAt(G.position.clone().setY(0)); G.add(p);
+  }
+  // goals
+  for (const sd of [-1, 1]) { const gm = new THREE.Mesh(new THREE.BoxGeometry(1.5, 2.4, 7.3), new THREE.MeshBasicMaterial({ color: 0xffffff, wireframe: true })); gm.position.set(sd * (PL/2 + .7), 1.3, 0); G.add(gm); }
+  // scoreboard
+  const sc = document.createElement('canvas'); sc.width = 1024; sc.height = 420; const s2 = sc.getContext('2d');
+  s2.fillStyle = '#05070f'; s2.fillRect(0, 0, 1024, 420); s2.fillStyle = '#0d1a3c'; s2.fillRect(10, 10, 1004, 400);
+  s2.textAlign = 'center'; s2.textBaseline = 'middle';
+  s2.fillStyle = '#55c8ff'; s2.font = '700 40px Cairo, Arial, sans-serif'; s2.fillText(CL.open ? '⚽ الكلاسيكو · مباشر' : '⚽ الكلاسيكو · النتيجة النهائية', 512, 52);
+  s2.fillStyle = '#fff'; s2.font = '900 60px Cairo, Arial, sans-serif'; s2.fillText('ريال مدريد', 790, 130); s2.fillText('برشلونة', 234, 130);
+  s2.fillStyle = '#ffc93c'; s2.font = '900 170px Cairo, Arial, sans-serif'; s2.fillText(String(CL.real), 790, 290); s2.fillText(String(CL.barca), 234, 290);
+  s2.fillStyle = '#9aa6d6'; s2.font = '900 110px Cairo, Arial, sans-serif'; s2.fillText('-', 512, 280);
+  s2.fillStyle = '#ffd27a'; s2.font = '700 30px Cairo, Arial, sans-serif'; s2.fillText('علّق ١ لريال · علّق ٢ لبرشلونة', 512, 385);
+  const st = new THREE.CanvasTexture(sc); st.colorSpace = THREE.SRGBColorSpace;
+  const board = new THREE.Mesh(new THREE.PlaneGeometry(54, 22.2), new THREE.MeshBasicMaterial({ map: st, side: THREE.DoubleSide }));
+  board.position.set(0, 34, -RZ - 18); G.add(board);
+  const bf = new THREE.Mesh(new THREE.BoxGeometry(56, 24, 1), new THREE.MeshStandardMaterial({ color: 0x20263a })); bf.position.set(0, 34, -RZ - 18.7); G.add(bf);
+  for (const x of [-12, 12]) { const leg = new THREE.Mesh(new THREE.CylinderGeometry(.8, .8, 24), new THREE.MeshStandardMaterial({ color: 0x5a6280 })); leg.position.set(x, 11, -RZ - 19); G.add(leg); }
+  // a big floating sign so people find it
+  const lc = document.createElement('canvas'); lc.width = 640; lc.height = 200; const l = lc.getContext('2d');
+  l.fillStyle = 'rgba(12,18,45,.9)'; l.beginPath(); l.roundRect(6, 6, 628, 188, 40); l.fill(); l.strokeStyle = '#ffc93c'; l.lineWidth = 8; l.stroke();
+  l.fillStyle = '#ffc93c'; l.textAlign = 'center'; l.textBaseline = 'middle'; l.font = '900 76px Cairo, Arial, sans-serif'; l.fillText('⚽ استاد المدينة', 320, 104);
+  const sign = new THREE.Sprite(new THREE.SpriteMaterial({ map: new THREE.CanvasTexture(lc), depthTest: false })); sign.scale.set(34, 10.6, 1); sign.position.set(0, 66, 0); G.add(sign);
+  const hb = new THREE.Mesh(new THREE.CylinderGeometry(RX + 22, RX + 22, 30, 24), new THREE.MeshBasicMaterial({ visible: false })); hb.scale.z = (RZ + 22) / (RX + 22); hb.position.y = 15; hb.userData.stadium = 1; G.add(hb); STAD.hit.push(hb);
+})();
+function showStadium() {
+  openSheet('⚽ استاد المدينة', `
+    <div class="card" style="text-align:center"><div class="meta">${CL.open ? 'الكلاسيكو شغال دلوقتي' : 'النتيجة النهائية'}</div>
+      <div style="display:flex;justify-content:space-around;align-items:center;margin-top:8px">
+        <div><div style="font-weight:900">ريال مدريد</div><div style="font-size:48px;font-weight:900;color:var(--acc)">${CL.real}</div></div>
+        <div style="font-size:36px;color:var(--mut)">-</div>
+        <div><div style="font-weight:900">برشلونة</div><div style="font-size:48px;font-weight:900;color:var(--acc)">${CL.barca}</div></div></div>
+      <div class="note">النتيجة بتتحدّث الساعة ٨ الصبح و٩ بالليل</div></div>
+    <div class="free">⚽ <b>إزاي تجيب جول؟</b><br>علّق <b>١</b> تحت فيديو الكلاسيكو = جول لريال مدريد<br>علّق <b>٢</b> = جول لبرشلونة<br>لازم تكون عامل فولو للصفحة ✅</div>
+    <div class="card"><b>🥅 الهدّافين</b>${(CL.top||[]).length ? `<ul class="lb">${CL.top.slice(0,10).map(([u,c],i) => `<li><span class="n">${AR(i+1)}</span><span class="u">@${esc(u)}</span><small>⚽ ${AR(c)}</small></li>`).join('')}</ul>` : '<div class="note">لسه محدش — علّق وكن أول هدّاف!</div>'}</div>`);
+}
+function flyStadium() { const p = STAD.pos; flyTo(new THREE.Vector3(p.x, 20, p.z - 25), new THREE.Vector3(p.x, 48, p.z + 85)); }
+
 /* ---------- streets (purchasable signs) ---------- */
 const STREETS = [];
 function streetSign(i) {
@@ -635,10 +708,11 @@ cv.addEventListener('pointerdown', e => { down = [e.clientX, e.clientY]; touring
 cv.addEventListener('pointerup', e => {
   if (!down || Math.hypot(e.clientX-down[0], e.clientY-down[1]) > 6) return;
   mv.set(e.clientX/innerWidth*2-1, -e.clientY/innerHeight*2+1); ray.setFromCamera(mv, cam);
-  const hit = ray.intersectObjects([...towers.map(t => t.body), ...STREETS.map(s => s.sign), ...GARDEN.palms, ...GARDEN.signs, ...BOARDS.map(b => b.hit)])[0];
+  const hit = ray.intersectObjects([...towers.map(t => t.body), ...STREETS.map(s => s.sign), ...GARDEN.palms, ...GARDEN.signs, ...BOARDS.map(b => b.hit), ...STAD.hit])[0];
   if (!hit) return;
   if (hit.object.userData.gardenSign) { flyGarden(hit.object.userData.gardenSign - 1); showGarden(); return; }
   if (hit.object.userData.board) { showBoard(hit.object.userData.board); return; }
+  if (hit.object.userData.stadium) { flyStadium(); showStadium(); return; }
   if (hit.object.userData.palm) { const [n,u] = hit.object.userData.palm; openSheet('🌴 نخلة ' + AR(n), `<div class="card"><div class="un" style="direction:rtl">${esc(u)}</div><div class="meta">نخلة في حديقة الذكر 🌴 — اكتب «أستغفر الله» في كومنت وازرع نخلتك</div></div><div class="row"><button class="btn p" id="ga">شوف الحديقة كلها</button></div>`); $('ga').onclick = showGarden; return; }
   if (hit.object.userData.street !== undefined) {
     const i = hit.object.userData.street, who = S.owned['street'+i];
@@ -678,6 +752,7 @@ function loop() {
 Promise.all([document.fonts.load('900 30px Cairo, Arial, sans-serif','٠١٢ab'),document.fonts.load('700 28px Cairo, Arial, sans-serif','abcXYZ_.12 عربي'),document.fonts.load('700 22px Cairo, Arial, sans-serif','AB')]).catch(() => {}).finally(() => {
   rebuild(); tickNight(); loop();
   $('bGarden').onclick = () => { touring = false; flyGarden(); showGarden(); };
+  $('bStad').onclick = () => { touring = false; flyStadium(); showStadium(); };
   $('load').style.opacity = 0; setTimeout(() => $('load').remove(), 500);
   const m = location.hash.match(/^#floor-(\d+)$/);
   if (m && MAP.has(+m[1])) { shopFloor = +m[1]; setTimeout(() => focusFloor(+m[1]), 400); }
