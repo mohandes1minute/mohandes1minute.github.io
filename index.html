@@ -124,20 +124,18 @@ const fy = n => ((n-1) % 100) * FH + FH/2;
 const tw = n => Math.floor((n-1)/100);
 $('cnt').textContent = AR(FLOORS.length) + ' دور بأساميكم';
 
-/* ---------- upgrades derived from repost counts (data.json) ---------- */
-const RP = {};                       // username(lower) -> points
-const rpOf = u => RP[u.toLowerCase()] || 0;
-const LV = [[10,5],[5,4],[3,3],[1,2]];
-const lvlOf = c => (LV.find(([m]) => c >= m) || [0,1])[1];
+/* ---------- economy state (state.json from points.py) ---------- */
+const ST = {"lvl": {}, "neon": [], "max": [], "boards": [], "shops": {}, "streets": {}, "roof": null, "palms": [[1, "فضحكت فبشرناها"]], "earned": {}, "bal": {}};
+const lc = u => u.toLowerCase();
+const earnedOf = u => (ST.earned||{})[lc(u)] || 0, balOf = u => (ST.bal||{})[lc(u)] || 0;
 const S = { owned:{}, sold:{} };
 (function derive() {
-  for (const [n,u] of FLOORS) { const c = rpOf(u); S.owned[n] = { lv2: c >= 1, neon: c >= 2, max: c >= 10, c }; }
-  const rank = FLOORS.map(([n,u]) => [u, rpOf(u)]).filter(([,c]) => c > 0).sort((a,b) => b[1]-a[1]);
-  if (rank[0] && rank[0][1] >= 30) S.sold.roof = rank[0][0];
-  rank.filter(([,c]) => c >= 15).slice(0,5).forEach(([u],i) => { S.sold['street'+i] = u; S.owned['street'+i] = u; });
-  const st = new Set(Object.values(S.sold));
-  rank.filter(([u,c]) => c >= 7 && !st.has(u)).slice(0,6).forEach(([u],i) => S.sold['shop'+i] = u);
-  S.rank = rank;
+  for (const [n,u] of FLOORS) S.owned[n] = { neon: (ST.neon||[]).includes(lc(u)), max: (ST.max||[]).includes(lc(u)), lv: 1 + ((ST.lvl||{})[lc(u)] || 0), c: earnedOf(u), b: balOf(u) };
+  Object.entries(ST.streets||{}).forEach(([i,u]) => { S.sold['street'+i] = u; S.owned['street'+i] = u; });
+  Object.entries(ST.shops||{}).forEach(([i,u]) => S.sold['shop'+i] = u);
+  if (ST.roof) S.sold.roof = ST.roof;
+  S.boards = (ST.boards||[]).map(b => b.u);
+  S.rank = Object.entries(ST.earned||{}).filter(([u]) => BYU.has(u)).sort((a,b) => b[1]-a[1]);
 })();
 
 /* ---------- renderer / scene ---------- */
@@ -275,8 +273,9 @@ function buildTower(k) {
 }
 
 /* ---------- حديقة الذكر (from لعلهم يتفكرون) ---------- */
-const PALMS = [[1,"فضحكت فبشرناها"]];                   // [[n, name]]
-const GARDEN = { palms: [], lamps: [], sign: null, pos: new THREE.Vector3(0, 0, 105) };
+const PALMS = ST.palms || [];            // [[n, name]] — garden doc + «أستغفر الله» comments
+const OASIS_POS = [[0,105],[-170,115],[170,115],[0,-120],[-170,-125],[170,-125],[-330,0],[330,0]];
+const GARDEN = { palms: [], lamps: [], signs: [], oases: [], pos: new THREE.Vector3(0, 0, 105) };
 function makePalm(h, s = 1) {
   const g = new THREE.Group();
   const trunkM = new THREE.MeshStandardMaterial({ color: 0x8a5a2b, roughness: .9 });
@@ -294,19 +293,27 @@ function makePalm(h, s = 1) {
   const dates = new THREE.Mesh(new THREE.SphereGeometry(.5*s, 8, 6), new THREE.MeshStandardMaterial({ color: 0xc8781e })); dates.position.set(.6, h - .6, 0); g.add(dates);
   return g;
 }
-(function buildGarden() {
-  const G = new THREE.Group(); G.position.copy(GARDEN.pos); scene.add(G);
+function nameTag(txt) {
+  const c = document.createElement('canvas'); c.width = 320; c.height = 72; const g = c.getContext('2d');
+  g.fillStyle = 'rgba(20,50,30,.85)'; g.beginPath(); g.roundRect(4, 4, 312, 64, 22); g.fill();
+  g.fillStyle = '#fff'; g.font = '700 32px Cairo, Arial, sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle';
+  g.fillText(txt.length > 16 ? txt.slice(0,15) + '…' : txt, 160, 38);
+  const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: new THREE.CanvasTexture(c), depthWrite: false })); sp.scale.set(6.4, 1.45, 1); return sp;
+}
+function buildOasis(idx, palms) {
+  const [ox, oz] = OASIS_POS[idx % OASIS_POS.length];
+  const G = new THREE.Group(); G.position.set(ox, 0, oz); scene.add(G);
   const sand = new THREE.Mesh(new THREE.CircleGeometry(62, 48), new THREE.MeshStandardMaterial({ color: 0xd9b27a, roughness: 1 }));
   sand.rotation.x = -Math.PI/2; sand.position.y = .06; G.add(sand);
   const pond = new THREE.Mesh(new THREE.CircleGeometry(9, 32), new THREE.MeshStandardMaterial({ color: 0x3aa7d8, roughness: .15, metalness: .3, emissive: 0x0a3550 }));
   pond.rotation.x = -Math.PI/2; pond.position.y = .1; G.add(pond);
-  // 50 plots on rings around the pond: planted palms + empty mounds
   const plots = []; let r = 16, k = 0;
   while (plots.length < 50) { const n = Math.floor(2*Math.PI*r/9); for (let i = 0; i < n && plots.length < 50; i++) plots.push([Math.cos(i/n*6.283 + k)*r, Math.sin(i/n*6.283 + k)*r]); r += 10; k += .3; }
   plots.forEach(([x,z], i) => {
-    const owner = PALMS[i];
+    const owner = palms[i];
     if (owner) {
       const p = makePalm(9 + (i*7 % 4), 1); p.position.set(x, 0, z); p.rotation.y = i*1.7; G.add(p);
+      const tag = nameTag(owner[1]); tag.position.set(x, 2.2, z); G.add(tag);
       const hit = new THREE.Mesh(new THREE.CylinderGeometry(2.5, 2.5, 13, 8), new THREE.MeshBasicMaterial({ visible: false }));
       hit.position.set(x, 6.5, z); hit.userData.palm = owner; G.add(hit); GARDEN.palms.push(hit);
     } else {
@@ -315,28 +322,68 @@ function makePalm(h, s = 1) {
       const sp = new THREE.Mesh(new THREE.ConeGeometry(.25, 1.2, 5), new THREE.MeshStandardMaterial({ color: 0x6fbf5a })); sp.position.set(x, .7, z); G.add(sp);
     }
   });
-  // lanterns
   for (let i = 0; i < 8; i++) {
     const a = i/8*6.283, x = Math.cos(a)*60, z = Math.sin(a)*60;
     const p = new THREE.Mesh(new THREE.CylinderGeometry(.18, .22, 4), new THREE.MeshStandardMaterial({ color: 0x6b5a3a })); p.position.set(x, 2, z); G.add(p);
     const l = new THREE.Mesh(new THREE.SphereGeometry(.6), new THREE.MeshBasicMaterial({ color: 0xffd27a })); l.position.set(x, 4.3, z); G.add(l); GARDEN.lamps.push(l);
   }
-  // sign
   const c = document.createElement('canvas'); c.width = 640; c.height = 240; const g = c.getContext('2d');
   g.fillStyle = 'rgba(20,60,35,.92)'; g.beginPath(); g.roundRect(6, 6, 628, 228, 40); g.fill(); g.strokeStyle = '#ffd27a'; g.lineWidth = 8; g.stroke();
-  g.fillStyle = '#ffd27a'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.font = '900 78px Cairo, Arial, sans-serif'; g.fillText('🌴 حديقة الذكر', 320, 88);
-  g.fillStyle = '#fff'; g.font = '700 44px Cairo, Arial, sans-serif'; g.fillText(AR(PALMS.length) + ' نخلة · اضغط هنا', 320, 172);
+  g.fillStyle = '#ffd27a'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.font = '900 70px Cairo, Arial, sans-serif';
+  g.fillText(idx === 0 ? '🌴 حديقة الذكر' : '🌴 واحة الذكر ' + AR(idx+1), 320, 88);
+  g.fillStyle = '#fff'; g.font = '700 42px Cairo, Arial, sans-serif'; g.fillText(AR(palms.length) + ' / ٥٠ نخلة · اضغط هنا', 320, 172);
   const sign = new THREE.Sprite(new THREE.SpriteMaterial({ map: new THREE.CanvasTexture(c), depthTest: false })); sign.scale.set(32, 12, 1); sign.position.set(0, 26, 0); G.add(sign);
-  const sh = new THREE.Mesh(new THREE.BoxGeometry(32, 12, 1), new THREE.MeshBasicMaterial({ visible: false })); sh.position.copy(sign.position); sh.userData.gardenSign = 1; G.add(sh);
-  GARDEN.sign = sh; GARDEN.group = G;
-})();
+  const sh = new THREE.Mesh(new THREE.BoxGeometry(32, 12, 1), new THREE.MeshBasicMaterial({ visible: false })); sh.position.copy(sign.position); sh.userData.gardenSign = idx + 1; G.add(sh);
+  GARDEN.signs.push(sh); GARDEN.oases.push(G);
+}
+// one oasis per 50 palms; the newest (partly empty) oasis always shows so people see where the next palm goes
+for (let o = 0; o <= Math.floor(PALMS.length / 50) && o < OASIS_POS.length; o++) buildOasis(o, PALMS.slice(o*50, o*50 + 50));
 function showGarden() {
   openSheet('🌴 حديقة الذكر', `
     <div class="card"><div class="meta" style="font-size:15px;color:var(--txt);line-height:1.8">قال رسول الله صلى الله عليه وسلم: «من قال سبحان الله العظيم وبحمده، غُرست له نخلة في الجنة» — رواه الترمذي.</div></div>
-    <div class="free">🌴 عاوز نخلة باسمك في الحديقة؟<br>اكتب <b>«سبحان الله العظيم وبحمده»</b> في كومنت عند صفحة <b>لعلهم يتفكرون</b> (@laallahum) واعمل فولو.</div>
-    <div class="card"><b>النخيل اللي اتزرع (${AR(PALMS.length)})</b><ul class="lb">${PALMS.map(([n,u]) => `<li><span class="n">🌴${AR(n)}</span><span class="u">${esc(u)}</span></li>`).join('') || '<li>لسه محدش — كن أول نخلة!</li>'}</ul></div>`);
+    <div class="free">🌴 <b>ازرع نخلة باسمك في المدينة:</b><br>اكتب <b>«أستغفر الله»</b> في كومنت تحت أي فيديو من الصفحة — كل فيديو = نخلة جديدة باسمك.<br>ولما الحديقة تتملي (٥٠ نخلة) بنفتح <b>واحة جديدة</b>!</div>
+    <div class="card"><b>النخيل اللي اتزرع (${AR(PALMS.length)}) · ${AR(GARDEN.oases.length)} واحة</b><ul class="lb">${PALMS.slice().reverse().slice(0,60).map(([n,u]) => `<li><span class="n">🌴${AR(n)}</span><span class="u">${esc(u)}</span></li>`).join('') || '<li>لسه محدش — كن أول نخلة!</li>'}</ul></div>`);
 }
-function flyGarden() { const p = GARDEN.pos; flyTo(new THREE.Vector3(p.x, 6, p.z), new THREE.Vector3(p.x + 40, 55, p.z + 95)); }
+function flyGarden(i = 0) { const [x,z] = OASIS_POS[i]; flyTo(new THREE.Vector3(x, 6, z), new THREE.Vector3(x + 40, 55, z + (z > 0 ? 95 : -95))); }
+
+/* ---------- billboards: 3 for followers (points), 2 for sponsors (paid, by direct contact) ---------- */
+const BOARDS = [];
+function boardTex(kind, who) {
+  const c = document.createElement('canvas'); c.width = 768; c.height = 384; const g = c.getContext('2d');
+  const grd = g.createLinearGradient(0,0,768,384);
+  if (kind === 'sp') { grd.addColorStop(0,'#1d2b64'); grd.addColorStop(1,'#0b8f8f'); } else if (who) { grd.addColorStop(0,'#ff8a2a'); grd.addColorStop(1,'#ffc93c'); } else { grd.addColorStop(0,'#2a3570'); grd.addColorStop(1,'#141b38'); }
+  g.fillStyle = grd; g.fillRect(0,0,768,384); g.strokeStyle = '#fff'; g.lineWidth = 10; g.strokeRect(5,5,758,374);
+  g.textAlign = 'center'; g.textBaseline = 'middle';
+  if (kind === 'sp') {
+    g.fillStyle = '#fff'; g.font = '900 64px Cairo, Arial, sans-serif'; g.fillText('مساحة إعلانية', 384, 120);
+    g.font = '700 40px Cairo, Arial, sans-serif'; g.fillText('للشركات والإعلانات', 384, 200);
+    g.fillStyle = '#ffd27a'; g.font = '700 36px Cairo, Arial, sans-serif'; g.fillText('تواصل معنا برسالة على الصفحة', 384, 285);
+  } else if (who) {
+    g.fillStyle = '#2a1700'; g.font = '700 40px Cairo, Arial, sans-serif'; g.fillText('📢 المدينة بتحيي', 384, 110);
+    g.font = '900 70px Cairo, Arial, sans-serif'; g.fillText('@' + (who.length > 16 ? who.slice(0,15) + '…' : who), 384, 215);
+    g.font = '700 32px Cairo, Arial, sans-serif'; g.fillText('مهندس في دقيقة', 384, 310);
+  } else {
+    g.fillStyle = '#fff'; g.font = '900 60px Cairo, Arial, sans-serif'; g.fillText('لوحتك هنا؟ 📢', 384, 140);
+    g.fillStyle = '#ffc93c'; g.font = '700 40px Cairo, Arial, sans-serif'; g.fillText('اكتب كومنت: اصرف لوحة', 384, 240);
+    g.fillStyle = '#9aa6d6'; g.font = '600 30px Cairo, Arial, sans-serif'; g.fillText('٨ نقط · لمدة أسبوع', 384, 310);
+  }
+  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; return t;
+}
+[[-250,'u',0],[-212,'u',1],[212,'u',2],[250,'sp',0],[288,'sp',1]].forEach(([x, kind, i]) => {
+  const who = kind === 'u' ? S.boards[i] : null;
+  const g = new THREE.Group(); g.position.set(x, 0, -24);
+  const pm = new THREE.MeshStandardMaterial({ color: 0x5a6280, metalness: .5 });
+  const pole = new THREE.Mesh(new THREE.CylinderGeometry(.5, .6, 14), pm); pole.position.y = 7; g.add(pole);
+  const panel = new THREE.Mesh(new THREE.PlaneGeometry(26, 13), new THREE.MeshBasicMaterial({ map: boardTex(kind, who) })); panel.position.y = 20; g.add(panel);
+  const back = new THREE.Mesh(new THREE.BoxGeometry(26.6, 13.6, .6), pm); back.position.set(0, 20, -.4); g.add(back);
+  for (const lx of [-8, 8]) { const lamp = new THREE.Mesh(new THREE.BoxGeometry(2, .4, 1.2), new THREE.MeshBasicMaterial({ color: 0xfff2c0 })); lamp.position.set(lx, 27, 1); g.add(lamp); }
+  panel.userData.board = { kind, who, i }; scene.add(g); BOARDS.push({ g, hit: panel });
+});
+function showBoard(b) {
+  if (b.kind === 'sp') return openSheet('📢 مساحة إعلانية', `<div class="card"><b>إعلانك قدام كل متابعين المدينة</b><div class="meta" style="margin-top:6px">اللوحات دي مخصصة للشركات والإعلانات المدفوعة. للتفاصيل والأسعار ابعت رسالة مباشرة لصفحة <b>مهندس في دقيقة</b> على انستجرام أو فيسبوك.</div></div>`);
+  if (b.who) return openSheet('📢 لوحة إعلانية', `<div class="card">اللوحة دي محجوزة لـ <b style="direction:ltr">@${esc(b.who)}</b> لمدة أسبوع 🔥</div>`);
+  openSheet('📢 لوحة إعلانية فاضية', `<div class="card"><div class="meta">احجزها باسمك أسبوع كامل بـ ٨ نقط من رصيدك.</div><div class="free" style="margin-top:10px">اكتب كومنت تحت أي فيديو: <b>اصرف لوحة</b></div></div>`);
+}
 
 /* ---------- streets (purchasable signs) ---------- */
 const STREETS = [];
@@ -426,14 +473,14 @@ function showFloor(n) {
     return;
   }
   const o = S.owned[n] || {};
-  const lvl = lvlOf(o.c || 0), nxt = LV.slice().reverse().find(([m]) => m > (o.c||0));
+  const lvl = o.lv || 1;
   openSheet('دور ' + AR(n), `
     <div class="card"><div class="fl"><div class="av" style="background:${colorOf(u)}">${esc(letterOf(u))}</div>
       <div><div class="un">@${esc(u)}</div><div class="meta">البرج ${AR(tw(n)+1)} · دور ${AR(n)}</div>
-      <span class="badge g">لفل ${AR(lvl)}</span><span class="badge">⭐ ${AR(o.c||0)} نقطة</span>${o.neon ? '<span class="badge">💡 نيون</span>' : ''}${o.max ? '<span class="badge">👑 ماكس</span>' : ''}</div></div>
-      <div class="row"><button class="btn" id="shareB">🔗 شارك دورك</button><button class="btn p" id="decoB">✨ زيّن دورك</button></div></div>
-    ${nxt ? `<div class="note">فاضلك ${AR(nxt[0]-(o.c||0))} نقطة وتوصل لفل ${AR(nxt[1])} 🔥</div>` : ''}
-    <div class="free">🎁 <b>إزاي تجمع نقط؟</b><br>💬 كومنت على فيديو جديد = نقطة<br>👥 منشن لصاحب في الكومنت = نقطة (لحد ٣ في الفيديو)<br>🤝 صاحبك يعمل فولو ويكتب «جاي من @اسمك» = ٥ نقط<div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-top:8px"><span>⭐ نقطة ← لفل ٢</span><span>⭐ ٣ نقط ← لفل ٣</span><span>⭐ ٥ نقط ← لفل ٤</span><span>⭐ ١٠ نقط ← لفل ٥</span></div></div>
+      <span class="badge g">لفل ${AR(lvl)}</span><span class="badge">💰 رصيدك ${AR(o.b||0)} نقطة</span>${o.neon ? '<span class="badge">💡 نيون</span>' : ''}${o.max ? '<span class="badge">👑 ماكس</span>' : ''}${S.boards.includes(lc(u)) ? '<span class="badge">📢 لوحة إعلانية</span>' : ''}</div></div>
+      <div class="row"><button class="btn" id="shareB">🔗 شارك دورك</button><button class="btn p" id="decoB">🛍️ اصرف نقطك</button></div></div>
+    <div class="note">جمعت ${AR(o.c||0)} نقطة لحد دلوقتي · الرصيد بيتصرف بكومنت «اصرف …» تحت أي فيديو</div>
+    <div class="free">🎁 <b>إزاي تجمع نقط؟</b><br>💬 كومنت على فيديو جديد = نقطة<br>👥 منشن لصاحب في الكومنت = نقطة (لحد ٣ في الفيديو)<br>🤝 صاحبك يعمل فولو ويكتب «جاي من @اسمك» = ٥ نقط<br>🌴 «أستغفر الله» في كومنت = نخلة باسمك في الواحة</div>
     <div class="note">ده لينك دورك اللي تقدر تشاركه: <span style="direction:ltr;display:inline-block">#floor-${n}</span></div>`);
   $('shareB').onclick = async () => {
     const link = location.href.split('#')[0] + '#floor-' + n;
@@ -445,14 +492,15 @@ function showFloor(n) {
 /* ---------- store ---------- */
 const SHOP = {
   home: { name: '🏠 دورك', items: [
-    { id: 'neon', e: '💡', t: 'لافتة نيون باسمك', d: 'اسمك ينوّر بلون مختلف بالليل', p: 2 },
-    { id: 'lv2', e: '⬆️', t: 'لفل ٢', d: 'بلكونة وشبابيك منوّرة', p: 1 },
-    { id: 'max', e: '👑', t: 'دور ماكس', d: 'إطار ذهبي + تاج جنب اسمك', p: 10 },
+    { id: 'neon', e: '💡', t: 'لافتة نيون باسمك', d: 'اسمك ينوّر بلون مختلف بالليل', p: 2, code: 'نيون' },
+    { id: 'lvl', e: '⬆️', t: 'لفل أعلى', d: 'كل مرة دورك يعلى لفل (لحد لفل ٥)', p: 3, code: 'لفل' },
+    { id: 'max', e: '👑', t: 'دور ماكس', d: 'إطار ذهبي + تاج جنب اسمك', p: 10, code: 'ماكس' },
+    { id: 'board', e: '📢', t: 'لوحة إعلانية باسمك', d: 'على الطريق الرئيسي لمدة أسبوع (٣ لوحات بس)', p: 8, code: 'لوحة' },
   ]},
-  street: { name: '🛣️ الشوارع', items: STREETS.map((_, i) => ({ id: 'street'+i, e: '🪧', t: 'شارع رقم ' + AR(i+1), d: 'لأعلى ٥ في النقط — واحد بس لكل شارع', p: 15, unique: true })) },
+  street: { name: '🛣️ الشوارع', items: STREETS.map((_, i) => ({ id: 'street'+i, e: '🪧', t: 'شارع رقم ' + AR(i+1), d: 'الشارع باسمك — أول واحد يطلبه', p: 15, unique: true, code: 'شارع' })) },
   shops: { name: '🏪 محلات', items: [
     ['🧱','محل مواد البناء'],['☕','كافيه المهندسين'],['🔧','ورشة الحدادة'],['📐','مكتب استشاري'],['🚧','معدات وسقالات'],['🏗️','شركة مقاولات'],
-  ].map(([e,t], i) => ({ id: 'shop'+i, e, t, d: 'محل في الدور الأرضي باسمك', p: 7, unique: true })) },
+  ].map(([e,t], i) => ({ id: 'shop'+i, e, t, d: 'محل في الدور الأرضي باسمك — أول واحد يطلبه', p: 7, unique: true, code: 'محل' })) },
   
 };
 let shopTab = 'home', shopFloor = null;
@@ -466,25 +514,25 @@ function openShop(tab = shopTab, floor = shopFloor) {
   const tower = S.sold.roof ? `<div class="it big sold"><span class="e">🚁</span><div style="flex:1"><b>سطح البرج + هيليباد</b><br><small>اتحجز لـ @${esc(S.sold.roof)}</small></div><span class="pr">اتحجز</span></div>`
     : `<button class="it big" data-i="roof"><span class="e">🚁</span><div style="flex:1;text-align:right"><b>سطح البرج + هيليباد باسمك</b><br><small>مرة واحدة بس في المدينة كلها</small></div><span class="pr">⭐ ٣٠ نقطة</span></button>`;
   openSheet('⬆️ ترقيات المدينة', `
-    <div class="free">كل الترقيات <b>ببلاش</b> وبتتفتح لوحدها بالنقط.<br>💬 كومنت على فيديو جديد = ١ · 👥 منشن صاحب = ١ (لحد ٣ في الفيديو) · 🤝 «جاي من @اسمك» = ٥<br>الشوارع والمحلات والسطح بتروح للأعلى في الترتيب.</div>
+    <div class="free">💰 نقطك <b>رصيد</b> تصرفه زي ما تحب. اختار الحاجة واكتب تحت أي فيديو كومنت: <b>«اصرف …»</b> وهتتطبق في التحديث الجاي (٨ الصبح و٩ بالليل).<br>اجمع نقط: 💬 كومنت على فيديو جديد = ١ · 👥 منشن صاحب = ١ (لحد ٣) · 🤝 «جاي من @اسمك» = ٥</div>
     ${floor ? `<div class="note">الترقية لدور ${AR(floor)} · @${esc(MAP.get(floor))}</div>` : `<div class="note">دوّر على دورك الأول عشان التزيين يتطبق عليه.</div>`}
     <div class="tabs">${tabs}</div><div class="items">${its}${tower}</div>`);
   $('shB').querySelectorAll('.tab').forEach(b => b.onclick = () => openShop(b.dataset.t, shopFloor));
   $('shB').querySelectorAll('[data-i]').forEach(b => b.onclick = () => buy(b.dataset.i));
 }
 function findItem(id) {
-  if (id === 'roof') return { id, e: '🚁', t: 'سطح البرج + هيليباد', p: 30, unique: true };
+  if (id === 'roof') return { id, e: '🚁', t: 'سطح البرج + هيليباد', p: 30, unique: true, code: 'سطح' };
   for (const s of Object.values(SHOP)) for (const it of s.items) if (it.id === id) return it;
 }
 function buy(id) {
-  const it = findItem(id), who = shopFloor ? MAP.get(shopFloor) : null, c = who ? rpOf(who) : 0;
+  const it = findItem(id), who = shopFloor ? MAP.get(shopFloor) : null, b = who ? balOf(who) : 0;
   modal(`<div class="e">${it.e}</div><h4>${it.t}</h4>
-    <p>${it.unique ? 'بتروح لأعلى المتفاعلين اللي عدّوا' : 'بتتفتح لوحدها لما توصل'}</p>
     <h4 style="color:var(--acc)">⭐ ${AR(it.p)} نقطة</h4>
-    ${who ? `<p>انت دلوقتي: ${AR(c)} نقطة${c < it.p ? ' · فاضلك ' + AR(it.p - c) : ' ✓'}</p>` : '<p>دوّر على دورك عشان تشوف وصلت لفين.</p>'}
-    <div class="free" style="text-align:right">💬 كومنت على فيديو جديد = ١ · 👥 منشن صاحب = ١ · 🤝 «جاي من @اسمك» = ٥</div>
-    <div class="row"><button class="btn p" id="mNo">تمام</button></div>`);
+    ${who ? `<p>رصيدك: ${AR(b)} نقطة${b < it.p ? ' · محتاج ' + AR(it.p - b) + ' كمان' : ' ✓ تقدر تصرف'}</p>` : '<p>دوّر على دورك عشان تشوف رصيدك.</p>'}
+    <div class="free" style="text-align:right">اكتب كومنت تحت أي فيديو من الصفحة:<br><b style="font-size:20px">اصرف ${it.code}</b><br>${it.unique ? 'أول واحد يطلبها بياخدها.' : ''} بتتطبق في التحديث الجاي.</div>
+    <div class="row"><button class="btn" id="mCp">📋 انسخ «اصرف ${it.code}»</button><button class="btn p" id="mNo">تمام</button></div>`);
   $('mNo').onclick = () => $('modal').classList.remove('on');
+  $('mCp').onclick = async () => { try { await navigator.clipboard.writeText('اصرف ' + it.code); toast('اتنسخ ✓ — الصقه في كومنت'); } catch(e) { toast('اكتب: اصرف ' + it.code); } };
 }
 function applyVisuals() {
   const keep = hl.visible;
@@ -499,7 +547,7 @@ $('bLb').onclick = () => {
   openSheet('🏆 المتصدرين', `
     <div class="card"><b>🥇 أول ساكنين في المدينة</b>
       <ul class="lb">${first.map(([n,u]) => `<li><span class="n">${AR(n)}</span><span class="u">@${esc(u)}</span><button class="pill" data-f="${n}">روح</button></li>`).join('')}</ul></div>
-    <div class="card"><b>🔥 أعلى النقط</b>${S.rank.length ? `<ul class="lb">${S.rank.slice(0,10).map(([u,c],i) => `<li><span class="n">${AR(i+1)}</span><span class="u">@${esc(u)}</span><small>⭐ ${AR(c)}</small><button class="pill" data-f="${BYU.get(u.toLowerCase())}">روح</button></li>`).join('')}</ul>` : '<div class="note">لسه محدش — اكتب كومنت ومنشن صاحبك تحت أي فيديو وكن الأول!</div>'}<div class="note">أعلى ٥ بتتسمّى الشوارع بأساميهم.</div></div>
+    <div class="card"><b>🔥 أعلى النقط (اللي اتجمعت)</b>${S.rank.length ? `<ul class="lb">${S.rank.slice(0,10).map(([u,c],i) => `<li><span class="n">${AR(i+1)}</span><span class="u">@${esc(u)}</span><small>⭐ ${AR(c)}</small><button class="pill" data-f="${BYU.get(u.toLowerCase())}">روح</button></li>`).join('')}</ul>` : '<div class="note">لسه محدش — اكتب كومنت ومنشن صاحبك تحت أي فيديو وكن الأول!</div>'}</div>
     <div class="card"><b>⭐ أصحاب المعالم</b>${sup.length ? `<ul class="lb">${sup.map(([k,u]) => `<li><span class="n">⭐</span><span class="u">@${esc(u)}</span><small>${findItem(k)?.t || ''}</small></li>`).join('')}</ul>` : '<div class="note">لسه محدش فتح شارع أو محل — كن الأول!</div>'}</div>`);
   $('shB').querySelectorAll('[data-f]').forEach(b => b.onclick = () => focusFloor(+b.dataset.f));
 };
@@ -562,10 +610,11 @@ cv.addEventListener('pointerdown', e => { down = [e.clientX, e.clientY]; touring
 cv.addEventListener('pointerup', e => {
   if (!down || Math.hypot(e.clientX-down[0], e.clientY-down[1]) > 6) return;
   mv.set(e.clientX/innerWidth*2-1, -e.clientY/innerHeight*2+1); ray.setFromCamera(mv, cam);
-  const hit = ray.intersectObjects([...towers.map(t => t.body), ...STREETS.map(s => s.sign), ...GARDEN.palms, GARDEN.sign])[0];
+  const hit = ray.intersectObjects([...towers.map(t => t.body), ...STREETS.map(s => s.sign), ...GARDEN.palms, ...GARDEN.signs, ...BOARDS.map(b => b.hit)])[0];
   if (!hit) return;
-  if (hit.object.userData.gardenSign) { flyGarden(); showGarden(); return; }
-  if (hit.object.userData.palm) { const [n,u] = hit.object.userData.palm; openSheet('🌴 نخلة ' + AR(n), `<div class="card"><div class="un" style="direction:rtl">${esc(u)}</div><div class="meta">نخلة في حديقة الذكر — «سبحان الله العظيم وبحمده»</div></div><div class="row"><button class="btn p" id="ga">شوف الحديقة كلها</button></div>`); $('ga').onclick = showGarden; return; }
+  if (hit.object.userData.gardenSign) { flyGarden(hit.object.userData.gardenSign - 1); showGarden(); return; }
+  if (hit.object.userData.board) { showBoard(hit.object.userData.board); return; }
+  if (hit.object.userData.palm) { const [n,u] = hit.object.userData.palm; openSheet('🌴 نخلة ' + AR(n), `<div class="card"><div class="un" style="direction:rtl">${esc(u)}</div><div class="meta">نخلة في حديقة الذكر 🌴 — اكتب «أستغفر الله» في كومنت وازرع نخلتك</div></div><div class="row"><button class="btn p" id="ga">شوف الحديقة كلها</button></div>`); $('ga').onclick = showGarden; return; }
   if (hit.object.userData.street !== undefined) {
     const i = hit.object.userData.street, who = S.owned['street'+i];
     openSheet('🪧 شارع رقم ' + AR(i+1), who ? `<div class="card">الشارع ده اتسمّى باسم <b style="direction:ltr">@${esc(who)}</b></div>` :
