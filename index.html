@@ -99,6 +99,7 @@ button{font-family:inherit;cursor:pointer;border:0;color:inherit}
 <div class="bottom">
   <button class="pill acc" id="bHow">إزاي آخد دور؟</button>
   <button class="pill" id="bTour">جولة في المدينة</button>
+  <button class="pill" id="bGarden">🌴 حديقة الذكر</button>
   <button class="pill" id="bNight">☾</button>
 </div>
 
@@ -272,6 +273,70 @@ function buildTower(k) {
   scene.add(grp);
   towers[k] = { grp, body, H, top, face };
 }
+
+/* ---------- حديقة الذكر (from لعلهم يتفكرون) ---------- */
+const PALMS = [[1,"فضحكت فبشرناها"]];                   // [[n, name]]
+const GARDEN = { palms: [], lamps: [], sign: null, pos: new THREE.Vector3(0, 0, 105) };
+function makePalm(h, s = 1) {
+  const g = new THREE.Group();
+  const trunkM = new THREE.MeshStandardMaterial({ color: 0x8a5a2b, roughness: .9 });
+  const segs = 7;
+  for (let i = 0; i < segs; i++) {
+    const t = new THREE.Mesh(new THREE.CylinderGeometry(.42*s - i*.02, .5*s - i*.02, h/segs, 7), trunkM);
+    t.position.set(Math.sin(i*.3)*.25, h/segs*(i+.5), 0); t.rotation.z = Math.sin(i*.3)*.04; g.add(t);
+  }
+  const leafM = new THREE.MeshStandardMaterial({ color: 0x2f9a45, roughness: .7, side: THREE.DoubleSide });
+  for (let i = 0; i < 9; i++) {
+    const shape = new THREE.Shape(); shape.moveTo(0,0); shape.quadraticCurveTo(2.2*s, .9*s, 5*s, 0); shape.quadraticCurveTo(2.2*s, -.5*s, 0, 0);
+    const leaf = new THREE.Mesh(new THREE.ShapeGeometry(shape, 6), leafM);
+    leaf.position.set(.6, h, 0); leaf.rotation.set(0, i/9*Math.PI*2, -.45 - (i%2)*.2); g.add(leaf);
+  }
+  const dates = new THREE.Mesh(new THREE.SphereGeometry(.5*s, 8, 6), new THREE.MeshStandardMaterial({ color: 0xc8781e })); dates.position.set(.6, h - .6, 0); g.add(dates);
+  return g;
+}
+(function buildGarden() {
+  const G = new THREE.Group(); G.position.copy(GARDEN.pos); scene.add(G);
+  const sand = new THREE.Mesh(new THREE.CircleGeometry(62, 48), new THREE.MeshStandardMaterial({ color: 0xd9b27a, roughness: 1 }));
+  sand.rotation.x = -Math.PI/2; sand.position.y = .06; G.add(sand);
+  const pond = new THREE.Mesh(new THREE.CircleGeometry(9, 32), new THREE.MeshStandardMaterial({ color: 0x3aa7d8, roughness: .15, metalness: .3, emissive: 0x0a3550 }));
+  pond.rotation.x = -Math.PI/2; pond.position.y = .1; G.add(pond);
+  // 50 plots on rings around the pond: planted palms + empty mounds
+  const plots = []; let r = 16, k = 0;
+  while (plots.length < 50) { const n = Math.floor(2*Math.PI*r/9); for (let i = 0; i < n && plots.length < 50; i++) plots.push([Math.cos(i/n*6.283 + k)*r, Math.sin(i/n*6.283 + k)*r]); r += 10; k += .3; }
+  plots.forEach(([x,z], i) => {
+    const owner = PALMS[i];
+    if (owner) {
+      const p = makePalm(9 + (i*7 % 4), 1); p.position.set(x, 0, z); p.rotation.y = i*1.7; G.add(p);
+      const hit = new THREE.Mesh(new THREE.CylinderGeometry(2.5, 2.5, 13, 8), new THREE.MeshBasicMaterial({ visible: false }));
+      hit.position.set(x, 6.5, z); hit.userData.palm = owner; G.add(hit); GARDEN.palms.push(hit);
+    } else {
+      const m = new THREE.Mesh(new THREE.SphereGeometry(1.3, 10, 6, 0, 6.283, 0, 1.4), new THREE.MeshStandardMaterial({ color: 0xb8925c, roughness: 1 }));
+      m.scale.y = .35; m.position.set(x, 0, z); G.add(m);
+      const sp = new THREE.Mesh(new THREE.ConeGeometry(.25, 1.2, 5), new THREE.MeshStandardMaterial({ color: 0x6fbf5a })); sp.position.set(x, .7, z); G.add(sp);
+    }
+  });
+  // lanterns
+  for (let i = 0; i < 8; i++) {
+    const a = i/8*6.283, x = Math.cos(a)*60, z = Math.sin(a)*60;
+    const p = new THREE.Mesh(new THREE.CylinderGeometry(.18, .22, 4), new THREE.MeshStandardMaterial({ color: 0x6b5a3a })); p.position.set(x, 2, z); G.add(p);
+    const l = new THREE.Mesh(new THREE.SphereGeometry(.6), new THREE.MeshBasicMaterial({ color: 0xffd27a })); l.position.set(x, 4.3, z); G.add(l); GARDEN.lamps.push(l);
+  }
+  // sign
+  const c = document.createElement('canvas'); c.width = 640; c.height = 240; const g = c.getContext('2d');
+  g.fillStyle = 'rgba(20,60,35,.92)'; g.beginPath(); g.roundRect(6, 6, 628, 228, 40); g.fill(); g.strokeStyle = '#ffd27a'; g.lineWidth = 8; g.stroke();
+  g.fillStyle = '#ffd27a'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.font = '900 78px Cairo, Arial, sans-serif'; g.fillText('🌴 حديقة الذكر', 320, 88);
+  g.fillStyle = '#fff'; g.font = '700 44px Cairo, Arial, sans-serif'; g.fillText(AR(PALMS.length) + ' نخلة · اضغط هنا', 320, 172);
+  const sign = new THREE.Sprite(new THREE.SpriteMaterial({ map: new THREE.CanvasTexture(c), depthTest: false })); sign.scale.set(32, 12, 1); sign.position.set(0, 26, 0); G.add(sign);
+  const sh = new THREE.Mesh(new THREE.BoxGeometry(32, 12, 1), new THREE.MeshBasicMaterial({ visible: false })); sh.position.copy(sign.position); sh.userData.gardenSign = 1; G.add(sh);
+  GARDEN.sign = sh; GARDEN.group = G;
+})();
+function showGarden() {
+  openSheet('🌴 حديقة الذكر', `
+    <div class="card"><div class="meta" style="font-size:15px;color:var(--txt);line-height:1.8">قال رسول الله صلى الله عليه وسلم: «من قال سبحان الله العظيم وبحمده، غُرست له نخلة في الجنة» — رواه الترمذي.</div></div>
+    <div class="free">🌴 عاوز نخلة باسمك في الحديقة؟<br>اكتب <b>«سبحان الله العظيم وبحمده»</b> في كومنت عند صفحة <b>لعلهم يتفكرون</b> (@laallahum) واعمل فولو.</div>
+    <div class="card"><b>النخيل اللي اتزرع (${AR(PALMS.length)})</b><ul class="lb">${PALMS.map(([n,u]) => `<li><span class="n">🌴${AR(n)}</span><span class="u">${esc(u)}</span></li>`).join('') || '<li>لسه محدش — كن أول نخلة!</li>'}</ul></div>`);
+}
+function flyGarden() { const p = GARDEN.pos; flyTo(new THREE.Vector3(p.x, 6, p.z), new THREE.Vector3(p.x + 40, 55, p.z + 95)); }
 
 /* ---------- streets (purchasable signs) ---------- */
 const STREETS = [];
@@ -470,13 +535,25 @@ $('bHow').onclick = () => openSheet('إزاي آخد دور؟', `
   <div class="free">🛣️ أكتر المتفاعلين بالكومنت واللايك والشير هتتسمّى <b>شوارع المدينة</b> بأساميهم.</div>`);
 let touring = false, tourT = 0;
 $('bTour').onclick = () => { touring = !touring; $('bTour').textContent = touring ? 'وقّف الجولة' : 'جولة في المدينة'; hl.visible = false; closeSheet(); };
-$('bNight').onclick = () => {
-  night = !night; sky.material.uniforms.n.value = night ? 1 : 0;
-  hemi.intensity = night ? .6 : 1.3; sun.intensity = night ? .5 : 2.2;
-  scene.fog.color.set(night ? 0x0b1024 : 0xbcd0f0); ground.material.color.set(night ? 0x141a30 : 0x8a8f9a);
-  window.__wl.visible = night; $('bNight').textContent = night ? '☾' : '☀';
-  towers.forEach(t => t && (t.face.emissiveIntensity = night ? .85 : .25));
-};
+// day/night follows Riyadh time (UTC+3): night 19:00-05:00, dawn 05-07, dusk 17-19
+function riyadhNight() {
+  const d = new Date(), h = ((d.getUTCHours() + 3) % 24) + d.getUTCMinutes()/60;
+  if (h >= 7 && h < 17) return 0; if (h >= 19 || h < 5) return 1;
+  return h < 12 ? 1 - (h - 5)/2 : (h - 17)/2;
+}
+let manual = null;
+const cN = new THREE.Color(0x0b1024), cD = new THREE.Color(0xbcd0f0), gN = new THREE.Color(0x141a30), gD = new THREE.Color(0x8a8f9a);
+function applyNight(n) {
+  night = n > .5; sky.material.uniforms.n.value = n;
+  hemi.intensity = 1.3 - .7*n; sun.intensity = 2.2 - 1.7*n;
+  scene.fog.color.copy(cD).lerp(cN, n); ground.material.color.copy(gD).lerp(gN, n);
+  window.__wl.visible = n > .35; $('bNight').textContent = night ? '☾' : '☀';
+  towers.forEach(t => t && (t.face.emissiveIntensity = .25 + .6*n));
+  GARDEN.lamps.forEach(l => l.visible = n > .35);
+}
+function tickNight() { applyNight(manual ?? riyadhNight()); }
+setInterval(tickNight, 60000);
+$('bNight').onclick = () => { manual = night ? 0 : 1; tickNight(); toast(night ? 'ليل 🌙' : 'نهار ☀️ — الوضع الطبيعي بيمشي بتوقيت السعودية'); };
 
 /* ---------- picking ---------- */
 const ray = new THREE.Raycaster(), mv = new THREE.Vector2();
@@ -485,8 +562,10 @@ cv.addEventListener('pointerdown', e => { down = [e.clientX, e.clientY]; touring
 cv.addEventListener('pointerup', e => {
   if (!down || Math.hypot(e.clientX-down[0], e.clientY-down[1]) > 6) return;
   mv.set(e.clientX/innerWidth*2-1, -e.clientY/innerHeight*2+1); ray.setFromCamera(mv, cam);
-  const hit = ray.intersectObjects([...towers.map(t => t.body), ...STREETS.map(s => s.sign)])[0];
+  const hit = ray.intersectObjects([...towers.map(t => t.body), ...STREETS.map(s => s.sign), ...GARDEN.palms, GARDEN.sign])[0];
   if (!hit) return;
+  if (hit.object.userData.gardenSign) { flyGarden(); showGarden(); return; }
+  if (hit.object.userData.palm) { const [n,u] = hit.object.userData.palm; openSheet('🌴 نخلة ' + AR(n), `<div class="card"><div class="un" style="direction:rtl">${esc(u)}</div><div class="meta">نخلة في حديقة الذكر — «سبحان الله العظيم وبحمده»</div></div><div class="row"><button class="btn p" id="ga">شوف الحديقة كلها</button></div>`); $('ga').onclick = showGarden; return; }
   if (hit.object.userData.street !== undefined) {
     const i = hit.object.userData.street, who = S.owned['street'+i];
     openSheet('🪧 شارع رقم ' + AR(i+1), who ? `<div class="card">الشارع ده اتسمّى باسم <b style="direction:ltr">@${esc(who)}</b></div>` :
@@ -523,7 +602,8 @@ function loop() {
 
 /* ---------- start ---------- */
 Promise.all([document.fonts.load('900 30px Cairo, Arial, sans-serif','٠١٢ab'),document.fonts.load('700 28px Cairo, Arial, sans-serif','abcXYZ_.12 عربي'),document.fonts.load('700 22px Cairo, Arial, sans-serif','AB')]).catch(() => {}).finally(() => {
-  rebuild(); loop();
+  rebuild(); tickNight(); loop();
+  $('bGarden').onclick = () => { touring = false; flyGarden(); showGarden(); };
   $('load').style.opacity = 0; setTimeout(() => $('load').remove(), 500);
   const m = location.hash.match(/^#floor-(\d+)$/);
   if (m && MAP.has(+m[1])) { shopFloor = +m[1]; setTimeout(() => focusFloor(+m[1]), 400); }
