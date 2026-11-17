@@ -126,7 +126,7 @@ const tw = n => Math.floor((n-1)/100);
 $('cnt').textContent = AR(FLOORS.length) + ' دور بأساميكم';
 
 /* ---------- economy state (state.json from points.py) ---------- */
-const ST = {"lvl": {}, "neon": [], "max": [], "boards": [], "shops": {}, "streets": {}, "roof": null, "classico": {"real": 766, "barca": 290, "top": [["fhd16754", 125], ["dawd3398", 76], ["bakr.dima", 44], ["faris_alriany", 43], ["ky17sh", 42], ["youssef___prvv02", 24]], "open": true}, "palms": [[1, "فضحكت فبشرناها"]], "earned": {}, "bal": {}};
+const ST = {"lvl": {}, "neon": [], "max": [], "boards": [], "shops": {}, "streets": {}, "roof": null, "classico": {"real": 766, "barca": 290, "top": [["fhd16754", 125], ["dawd3398", 76], ["bakr.dima", 44], ["faris_alriany", 43], ["ky17sh", 42], ["youssef___prvv02", 24]], "open": true}, "palms": [[1, "فضحكت فبشرناها"], [2, "l.w8.r"], [3, "l.w8.r"], [4, "l.w8.r"], [5, "j12_l13"], [6, "ali_almomani_2012"], [7, "t5k923dhji"]], "earned": {}, "bal": {}};
 const lc = u => u.toLowerCase();
 const earnedOf = u => (ST.earned||{})[lc(u)] || 0, balOf = u => (ST.bal||{})[lc(u)] || 0;
 const S = { owned:{}, sold:{} };
